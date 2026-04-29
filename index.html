@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine Quality Prediction</title>
+    <meta name="description" content="Predict wine quality using machine learning with this premium application.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h2>Wine Quality Predictor</h2>
+
+        <div class="action-bar">
+            <button type="button" id="autofill-btn" onclick="autoFill()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                Auto Fill from Dataset
+            </button>
+            <button type="button" id="clear-btn" onclick="clearForm()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Clear All
+            </button>
+        </div>
+
+        <form action="/predict" method="post">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label for="f1">Fixed Acidity</label>
+                    <input type="number" step="any" id="f1" name="f1" placeholder="e.g. 7.4" required>
+                </div>
+                <div class="input-group">
+                    <label for="f2">Volatile Acidity</label>
+                    <input type="number" step="any" id="f2" name="f2" placeholder="e.g. 0.7" required>
+                </div>
+                <div class="input-group">
+                    <label for="f3">Citric Acid</label>
+                    <input type="number" step="any" id="f3" name="f3" placeholder="e.g. 0.0" required>
+                </div>
+                <div class="input-group">
+                    <label for="f4">Residual Sugar</label>
+                    <input type="number" step="any" id="f4" name="f4" placeholder="e.g. 1.9" required>
+                </div>
+                <div class="input-group">
+                    <label for="f5">Chlorides</label>
+                    <input type="number" step="any" id="f5" name="f5" placeholder="e.g. 0.076" required>
+                </div>
+                <div class="input-group">
+                    <label for="f6">Free Sulfur Dioxide</label>
+                    <input type="number" step="any" id="f6" name="f6" placeholder="e.g. 11.0" required>
+                </div>
+                <div class="input-group">
+                    <label for="f7">Total Sulfur Dioxide</label>
+                    <input type="number" step="any" id="f7" name="f7" placeholder="e.g. 34.0" required>
+                </div>
+                <div class="input-group">
+                    <label for="f8">Density</label>
+                    <input type="number" step="any" id="f8" name="f8" placeholder="e.g. 0.9978" required>
+                </div>
+                <div class="input-group">
+                    <label for="f9">pH</label>
+                    <input type="number" step="any" id="f9" name="f9" placeholder="e.g. 3.51" required>
+                </div>
+                <div class="input-group">
+                    <label for="f10">Sulphates</label>
+                    <input type="number" step="any" id="f10" name="f10" placeholder="e.g. 0.56" required>
+                </div>
+                <div class="input-group">
+                    <label for="f11">Alcohol (%)</label>
+                    <input type="number" step="any" id="f11" name="f11" placeholder="e.g. 9.4" required>
+                </div>
+            </div>
+
+            <button type="submit">Predict Quality</button>
+        </form>
+
+        {% if prediction_text %}
+        <div class="result-container">
+            <h3>{{ prediction_text }}</h3>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+        async function autoFill() {
+            const btn = document.getElementById('autofill-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/sample');
+                const data = await response.json();
+
+                const fields = ['f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11'];
+                fields.forEach((field, index) => {
+                    const input = document.getElementById(field);
+                    setTimeout(() => {
+                        input.value = data[field];
+                        input.classList.add('filled-animation');
+                        setTimeout(() => input.classList.remove('filled-animation'), 600);
+                    }, index * 80);
+                });
+
+            } catch (error) {
+                console.error('Failed to fetch sample data:', error);
+            } finally {
+                setTimeout(() => {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }, 1000);
+            }
+        }
+
+        function clearForm() {
+            const fields = ['f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11'];
+            fields.forEach((field, index) => {
+                const input = document.getElementById(field);
+                setTimeout(() => {
+                    input.value = '';
+                    input.classList.add('filled-animation');
+                    setTimeout(() => input.classList.remove('filled-animation'), 600);
+                }, index * 50);
+            });
+            // Remove result if present
+            const result = document.querySelector('.result-container');
+            if (result) result.style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
